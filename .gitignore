@@ -8,9 +8,10 @@ __pycache__/
 node_modules/
 dist/
 .DS_Store
-data/raw/
-data/processed/*.json
-data/processed/*.parquet
+data/raw/**
+!data/raw/.gitkeep
+data/processed/**
+!data/processed/.gitkeep
 *.tfstate
 *.tfstate.*
 .terraform/
