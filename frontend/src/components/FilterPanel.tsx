@@ -33,7 +33,9 @@ export function FilterPanel({ open, onToggle, filters, setFilters, counties, mat
               <X className="h-4 w-4" />
             </button>
           </div>
-          <p className="mb-3 text-[12px] text-slate-400">{matchCount.toLocaleString()} lakes match</p>
+          <p className="mb-3 text-[12px] text-slate-400">
+            {matchCount.toLocaleString()} {matchCount === 1 ? "lake matches" : "lakes match"}
+          </p>
           <label className="mb-3 flex items-center gap-2 text-[13px]">
             <input
               type="checkbox"

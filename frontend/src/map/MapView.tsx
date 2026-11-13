@@ -2,10 +2,14 @@ import {
   Map as MapLibreMap,
   NavigationControl,
   ScaleControl,
+  setWorkerUrl,
   type FilterSpecification,
   type MapLayerMouseEvent,
 } from "maplibre-gl";
+import maplibreWorker from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import "maplibre-gl/dist/maplibre-gl.css";
+
+setWorkerUrl(maplibreWorker);
 import { useEffect, useRef } from "react";
 import type { Filters, IceState, WaterbodySummary } from "../lib/types";
 import { ICE_COLORS } from "../lib/types";
