@@ -53,6 +53,6 @@ export const BASEMAPS: Record<
 
 export const COLORADO_CENTER: [number, number] = [-105.5, 39.0];
 export const COLORADO_BOUNDS: [[number, number], [number, number]] = [
-  [-109.2, 36.8],
-  [-101.9, 41.1],
+  [-113.4, 34.6],
+  [-98.6, 43.2],
 ];
