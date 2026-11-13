@@ -42,7 +42,7 @@ PostGIS starts automatically. The map still works from snapshot files if the dat
 
 React, TypeScript, Vite, MapLibre GL JS, Tailwind CSS, Recharts, Python, FastAPI, GeoPandas, PostGIS, Docker, Terraform, GitHub Actions.
 
-Basemaps: OpenFreeMap (streets), Esri World Imagery (satellite), OpenTopoMap (terrain). Attribution is required and shown on the map.
+Basemaps: Esri World Street Map, Esri World Imagery (satellite), OpenTopoMap (terrain). Attribution is required and shown on the map.
 
 ## Data
 

@@ -11,7 +11,7 @@ Evaluated 12 November 2026. Retrieval timestamps are stored in `frontend/public/
 - License: USGS-authored NHD is public domain; attribute USGS and Colorado GIS
 - Filter used: `Lake/Pond`, `Reservoir`, `Playa`
 - Count at extract: **7,132** polygons (7,075 lake/pond, 39 reservoir, 18 playa)
-- Named (GNIS): 2,408
+- Named (GNIS): 2,408. Some well-known lakes have no GNIS_NAME in NHDPlus. Documented local names live in `data/processing/aliases.json` (Georgetown Lake is `nhd-2884804`, matched to USGS NWIS 394359105411901).
 - NHDPlus MeanDepth present: 2,652
 - NHD `ELEVATION` present: ~129 (unusable as a statewide elevation field)
 - Area range: 0.001–62.2 km² (Navajo Reservoir is the largest polygon; it straddles the New Mexico line and is retained because the source layer includes it)

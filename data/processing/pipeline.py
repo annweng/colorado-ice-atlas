@@ -19,6 +19,7 @@ if str(ROOT) not in sys.path:
 from data.ingestion.elevation_ned import sample_elevations
 from data.ingestion.satellite_stac import assign_scenes_to_lakes, search_recent_scenes
 from data.ingestion.weather_openmeteo import cell_id, fetch_grid_weather, unique_cells
+from data.processing.aliases import apply_alias, load_aliases
 from data.processing.inventory import (
     attach_counties,
     colorado_outline,
@@ -34,6 +35,28 @@ from modeling.ice_models.stefan import MODEL_VERSION, LakeParams, estimate_depth
 RAW = ROOT / "data" / "raw"
 PROCESSED = ROOT / "data" / "processed"
 FRONTEND_DATA = ROOT / "frontend" / "public" / "data"
+
+
+def _geom_bbox(geom: dict[str, Any] | None) -> list[float] | None:
+    if not geom:
+        return None
+    rings: list[list[float]] = []
+
+    def walk(node: Any) -> None:
+        if not isinstance(node, list) or not node:
+            return
+        if isinstance(node[0], (int, float)) and len(node) >= 2:
+            rings.append([float(node[0]), float(node[1])])
+            return
+        for child in node:
+            walk(child)
+
+    walk(geom.get("coordinates"))
+    if not rings:
+        return None
+    xs = [p[0] for p in rings]
+    ys = [p[1] for p in rings]
+    return [min(xs), min(ys), max(xs), max(ys)]
 
 
 def jsonable(value: Any) -> Any:
@@ -306,11 +329,15 @@ def export_snapshots(inventory: dict[str, Any], modeled: dict[str, Any]) -> None
     pred_by_id = {p["waterbody_id"]: p for p in modeled["predictions"]}
     sat_by_id = {s["waterbody_id"]: s for s in modeled["satellite_observations"]}
 
+    aliases = load_aliases()
     map_features = []
     summaries = []
     for lake in inventory["waterbodies"]:
+        lake = apply_alias(dict(lake), aliases)
         pred = pred_by_id.get(lake["id"], {})
         sat = sat_by_id.get(lake["id"])
+        geom = lake.get("geometry_simplified") or lake.get("geometry")
+        bbox = _geom_bbox(geom)
         props = {
             "id": lake["id"],
             "name": lake["display_name"],
@@ -333,7 +360,10 @@ def export_snapshots(inventory: dict[str, Any], modeled: dict[str, Any]) -> None
             "as_of": pred.get("as_of_date"),
             "sat_class": None if sat is None else sat.get("classification"),
             "sat_at": None if sat is None else (sat.get("acquisition_timestamp") or "")[:10],
-            "named": bool(lake["official_name"]),
+            "named": bool(lake["official_name"]) or bool(lake.get("display_name") and lake.get("name_source")),
+            "alternative_names": lake.get("alternative_names") or [],
+            "name_source": lake.get("name_source"),
+            "bbox": bbox,
             "grid_cell_id": lake.get("grid_cell_id"),
             "nhd_fcode_desc": lake.get("nhd_fcode_desc"),
             "source": lake.get("source"),

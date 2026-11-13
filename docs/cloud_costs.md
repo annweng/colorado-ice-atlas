@@ -11,7 +11,7 @@ Figures checked November 2026. Free tiers change. Do not assume they are permane
 | Open-Meteo | Weather | No key; fair-use rate limits (~600 req/min) | ~200 grid cells batched | Do not query per lake |
 | OpenTopoData | 3DEP sample | 1 req/s public | ~72 batched elevation calls per full rebuild | Cache elevations; `--skip-elevation` on daily runs |
 | Planetary Computer STAC | Sentinel-2 search | Anonymous STAC; asset downloads throttled | Metadata only | Never bulk-download COGs in Actions |
-| OpenFreeMap | Streets basemap | Donation-funded, no key | Map views | Keep attribution |
+| Esri World Street Map | Streets basemap | Public tiles; attribution required | Map views | Do not scrape tiles for storage |
 | Esri World Imagery | Satellite basemap | Public tiles; attribution required | Map views | Do not scrape tiles for storage |
 | OpenTopoMap | Terrain basemap | Tile usage policy / CC-BY-SA | Map views | Keep attribution |
 | Google Cloud / AWS | Future | Always-free and 12-month credits exist but are easy to exceed | Not provisioned | Require approval before `terraform apply` |

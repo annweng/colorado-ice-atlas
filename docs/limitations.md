@@ -11,6 +11,7 @@
 - Intermittent lakes may be dry.
 - The Stefan coefficient is a literature range, not a Colorado calibration.
 - Ice thickness varies across a single lake. Shore, inlets, and aerators are unresolved.
-- Free-tier APIs (Open-Meteo, OpenTopoData, Planetary Computer, OpenFreeMap, Esri imagery) can throttle or change terms.
+- Free-tier APIs (Open-Meteo, OpenTopoData, Planetary Computer, Esri tiles) can throttle or change terms.
+- NHDPlus omits some local names (for example Georgetown Lake). Search uses documented aliases in addition to GNIS.
 
 Nothing in the interface should be read as permission to go onto ice.

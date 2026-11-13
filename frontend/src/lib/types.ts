@@ -23,6 +23,9 @@ export type WaterbodySummary = {
   sat_class: string | null;
   sat_at: string | null;
   named: boolean;
+  alternative_names?: string[] | null;
+  name_source?: string | null;
+  bbox?: [number, number, number, number] | number[] | null;
   gnis_id?: string | null;
   source_identifier?: string | null;
   grid_cell_id?: string | null;

@@ -6,7 +6,7 @@ export function Legend() {
   return (
     <div className="pointer-events-auto rounded-xl border border-white/10 bg-[#0a1624]/90 p-3 shadow-xl backdrop-blur">
       <div className="mb-2 font-serif text-sm text-white">Ice state</div>
-      <ul className="space-y-1.5 text-[12px] text-slate-200">
+      <ul className="space-y-1 text-[12px] text-slate-200">
         {STATES.map((state) => (
           <li key={state} className="flex items-center gap-2">
             <span className="h-2.5 w-2.5 rounded-sm" style={{ background: ICE_COLORS[state] }} />

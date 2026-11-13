@@ -20,6 +20,14 @@ def test_search_named_lake():
     assert names[0] == "Lake Granby"
 
 
+def test_search_georgetown_lake():
+    response = client.get("/api/search", params={"q": "georgetown lake"})
+    assert response.status_code == 200
+    names = [item["name"] for item in response.json()["items"]]
+    assert names, "expected Georgetown Lake"
+    assert names[0] == "Georgetown Lake"
+
+
 def test_bbox_and_filters():
     response = client.get(
         "/api/waterbodies",

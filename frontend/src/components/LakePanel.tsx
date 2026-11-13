@@ -76,6 +76,7 @@ export function LakePanel({ summary, catalog, prediction, weather, onClose }: Pr
             }
           />
           <Stat label="Source id" value={catalog?.source_identifier ?? summary.id} />
+          {summary.name_source ? <Stat label="Local name" value={summary.name_source} /> : null}
         </Section>
         <Section title="Latest weather at grid cell">
           <Stat label="Air temperature" value={latestObs ? `${formatNumber(latestObs.tmean_c, 1)} °C (${cToF(latestObs.tmean_c)})` : "—"} />

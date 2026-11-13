@@ -7,6 +7,17 @@ from typing import Any
 from app.services import store
 
 COORD_RE = re.compile(r"^\s*(-?\d+(?:\.\d+)?)\s*[, ]\s*(-?\d+(?:\.\d+)?)\s*$")
+STOPWORDS = {"lake", "lakes", "reservoir", "pond", "ponds", "the", "of", "near", "county"}
+
+
+def significant_tokens(query: str) -> list[str]:
+    return [token for token in re.findall(r"[a-z0-9]+", query.lower()) if len(token) > 1 and token not in STOPWORDS]
+
+
+def _haystack(row: dict[str, Any]) -> str:
+    parts = [row.get("name") or "", row.get("official_name") or "", row.get("county") or ""]
+    parts.extend(row.get("alternative_names") or [])
+    return " ".join(str(part) for part in parts).lower()
 
 
 def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -51,24 +62,32 @@ def search(query: str, limit: int = 20) -> list[dict[str, Any]]:
         return out
 
     needle = q.lower()
-    city_hit = next((c for c in store.cities() if needle in str(c["name"]).lower()), None)
+    significant = significant_tokens(q)
+    city_hit = next(
+        (
+            c
+            for c in store.cities()
+            if needle in str(c["name"]).lower() or any(token == str(c["name"]).lower() for token in significant)
+        ),
+        None,
+    )
     scored: list[tuple[float, dict[str, Any]]] = []
     for row in summaries:
         name = (row.get("name") or "").lower()
         official = (row.get("official_name") or "").lower()
-        county = (row.get("county") or "").lower()
-        tokens = set(official.replace("/", " ").replace("-", " ").split()) | set(name.replace("/", " ").split())
+        blob = _haystack(row)
+        word_tokens = set(blob.replace("/", " ").replace("-", " ").split())
         score = 0.0
         if needle == official or needle == name:
             score = 100
-        elif needle in tokens:
+        elif significant and all(token in blob for token in significant):
+            score = 92
+        elif needle in word_tokens:
             score = 88
         elif official.startswith(needle) or name.startswith(needle):
             score = 70
-        elif needle in official or needle in name:
+        elif needle in blob:
             score = 55
-        elif needle in county:
-            score = 40
         elif row.get("id", "").lower() == needle:
             score = 90
         if score:

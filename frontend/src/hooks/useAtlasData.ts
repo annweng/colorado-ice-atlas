@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { expandWeatherCell, summaryToCatalog } from "../lib/ice";
+import { haystack, nameScore, significantTokens } from "../lib/search";
 import type { CompactWeather, Filters, IceState, WaterbodySummary } from "../lib/types";
 import { loadCities, loadCounties, loadMeta, loadSummaries, loadWeatherGrid } from "../services/api";
 
@@ -60,7 +61,8 @@ export function useAtlasData() {
     const q = filters.query.trim().toLowerCase();
     const rows = summaries.filter((row) => {
       if (q) {
-        const blob = `${row.name} ${row.official_name ?? ""} ${row.county ?? ""} ${row.id}`.toLowerCase();
+        const blob = `${haystack(row)} ${row.id}`.toLowerCase();
+        const tokens = significantTokens(q);
         const coord = q.match(/^(-?\d+(\.\d+)?)[,\s]+(-?\d+(\.\d+)?)$/);
         if (coord) {
           const lat = Number(coord[1]);
@@ -68,8 +70,12 @@ export function useAtlasData() {
           const dlat = row.lat - lat;
           const dlon = row.lon - lon;
           if (dlat * dlat + dlon * dlon > 0.08) return false;
-        } else if (!blob.includes(q)) {
-          const city = cities.find((c) => c.name.toLowerCase().includes(q));
+        } else if (blob.includes(q) || (tokens.length > 0 && tokens.every((token) => blob.includes(token)))) {
+          // name, alias, county, or all significant tokens
+        } else {
+          const city = cities.find(
+            (c) => c.name.toLowerCase().includes(q) || tokens.some((token) => c.name.toLowerCase() === token),
+          );
           if (!city) return false;
           const dlat = row.lat - city.lat;
           const dlon = row.lon - city.lon;
@@ -90,15 +96,8 @@ export function useAtlasData() {
     });
     if (!q) return rows;
     const score = (row: WaterbodySummary) => {
-      const name = (row.official_name || row.name || "").toLowerCase();
-      const tokens = new Set(name.replace(/[/-]/g, " ").split(/\s+/));
-      let value = 0;
-      if (name === q) value = 100;
-      else if (tokens.has(q)) value = 88;
-      else if (name.startsWith(q)) value = 70;
-      else if (name.includes(q)) value = 55;
-      else value = 40;
-      return value + Math.min(25, row.area_km2 * 2);
+      const value = nameScore(q, row);
+      return value || 40;
     };
     return [...rows].sort((a, b) => score(b) - score(a) || b.area_km2 - a.area_km2);
   }, [summaries, filters, cities]);

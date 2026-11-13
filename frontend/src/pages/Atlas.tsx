@@ -59,7 +59,7 @@ export function Atlas() {
           basemap={basemap}
           focus={data.selected}
         />
-        <div className="pointer-events-none absolute top-3 left-3 z-10 flex flex-col gap-2">
+        <div className="pointer-events-none absolute top-3 left-3 z-20 flex max-h-[calc(100%-1.5rem)] w-[min(92vw,360px)] flex-col gap-2 overflow-y-auto">
           <FilterPanel
             open={filtersOpen}
             onToggle={() => setFiltersOpen((v) => !v)}
@@ -69,7 +69,7 @@ export function Atlas() {
             matchCount={data.filtered.length}
             onClear={data.resetFilters}
           />
-          <div className="pointer-events-auto flex overflow-hidden rounded-xl border border-white/15 bg-[#0b1a2b]/90 text-[12px]">
+          <div className="pointer-events-auto flex w-fit overflow-hidden rounded-xl border border-white/15 bg-[#0b1a2b]/90 text-[12px]">
             {(Object.keys(BASEMAPS) as BasemapId[]).map((id) => (
               <button
                 key={id}
@@ -80,9 +80,11 @@ export function Atlas() {
               </button>
             ))}
           </div>
-        </div>
-        <div className="pointer-events-none absolute bottom-8 left-3 z-10 hidden w-72 md:block">
-          <Legend />
+          {!filtersOpen && (
+            <div className="hidden w-72 md:block">
+              <Legend />
+            </div>
+          )}
         </div>
         <div className="pointer-events-none absolute right-0 bottom-0 z-10 h-[min(78vh,720px)] w-full md:top-3 md:right-3 md:h-auto md:max-h-[calc(100%-1.5rem)] md:w-[400px]">
           {data.selected && (

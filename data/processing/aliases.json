@@ -1,0 +1,11 @@
+[
+  {
+    "waterbody_id": "nhd-2884804",
+    "display_name": "Georgetown Lake",
+    "alternative_names": [
+      "Georgetown Reservoir",
+      "Georgetown Lake near Georgetown"
+    ],
+    "name_source": "USGS NWIS site 394359105411901 (Georgetown Lake near Georgetown, CO). The NHDPlus polygon has no GNIS_NAME."
+  }
+]

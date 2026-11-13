@@ -26,7 +26,7 @@ export function FilterPanel({ open, onToggle, filters, setFilters, counties, mat
         Filters
       </button>
       {open && (
-        <div className="max-h-[70vh] w-[min(92vw,360px)] overflow-y-auto rounded-xl border border-white/10 bg-[#0a1624]/95 p-3 text-sm shadow-2xl backdrop-blur">
+        <div className="max-h-[min(70vh,calc(100dvh-9rem))] w-full overflow-y-auto rounded-xl border border-white/10 bg-[#0a1624]/95 p-3 text-sm shadow-2xl backdrop-blur">
           <div className="mb-3 flex items-center justify-between">
             <div className="font-serif">Filter waterbodies</div>
             <button onClick={onToggle} aria-label="Close filters">

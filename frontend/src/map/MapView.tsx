@@ -1,4 +1,5 @@
 import {
+  LngLatBounds,
   Map as MapLibreMap,
   NavigationControl,
   ScaleControl,
@@ -88,10 +89,62 @@ export function MapView({ filters, searchIds, selectedId, onSelect, basemap, foc
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !focus) return;
-    map.flyTo({ center: [focus.lon, focus.lat], zoom: Math.max(map.getZoom(), 10.5), essential: true });
+    const run = () => fitLake(map, focus);
+    if (!map.loaded()) {
+      map.once("load", run);
+      return;
+    }
+    run();
   }, [focus]);
 
   return <div ref={container} className="h-full w-full" />;
+}
+
+function lakeBounds(focus: WaterbodySummary): LngLatBounds {
+  const raw = focus.bbox;
+  let minx = focus.lon;
+  let miny = focus.lat;
+  let maxx = focus.lon;
+  let maxy = focus.lat;
+  if (Array.isArray(raw) && raw.length === 4) {
+    minx = Number(raw[0]);
+    miny = Number(raw[1]);
+    maxx = Number(raw[2]);
+    maxy = Number(raw[3]);
+  }
+  const minSpan = 0.006;
+  if (maxx - minx < minSpan) {
+    const mid = (minx + maxx) / 2;
+    minx = mid - minSpan / 2;
+    maxx = mid + minSpan / 2;
+  }
+  if (maxy - miny < minSpan) {
+    const mid = (miny + maxy) / 2;
+    miny = mid - minSpan / 2;
+    maxy = mid + minSpan / 2;
+  }
+  return new LngLatBounds([minx, miny], [maxx, maxy]);
+}
+
+function fitLake(map: MapLibreMap, focus: WaterbodySummary) {
+  const width = map.getContainer().clientWidth;
+  const height = map.getContainer().clientHeight;
+  const panel = width >= 768 ? 412 : 0;
+  const usableW = Math.max(280, width - panel);
+  const fill = 0.46;
+  const xPad = Math.round((usableW * (1 - fill)) / 2);
+  const yPad = Math.round((height * (1 - fill)) / 2);
+  map.fitBounds(lakeBounds(focus), {
+    padding: {
+      top: Math.max(64, yPad),
+      bottom: Math.max(56, yPad),
+      left: Math.max(16, xPad),
+      right: Math.max(16, xPad) + panel,
+    },
+    maxZoom: 15.75,
+    duration: 850,
+    essential: true,
+  });
 }
 
 function addDataLayers(map: MapLibreMap) {

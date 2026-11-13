@@ -1,4 +1,4 @@
-from app.services.query import parse_coordinates
+from app.services.query import parse_coordinates, significant_tokens
 
 
 def test_parse_lat_lon():
@@ -13,3 +13,8 @@ def test_parse_lon_lat_colorado():
 
 def test_reject_garbage():
     assert parse_coordinates("Granby") is None
+
+
+def test_significant_tokens_drop_generic_waterbody_words():
+    assert significant_tokens("lake granby") == ["granby"]
+    assert significant_tokens("Georgetown Reservoir") == ["georgetown"]
