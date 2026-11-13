@@ -1,0 +1,28 @@
+name: Deploy frontend
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "frontend/**"
+
+jobs:
+  pages:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+      - name: Hold for Cloudflare Pages
+        run: |
+          echo "Wire CLOUDFLARE_API_TOKEN and wrangler pages deploy after the Pages project exists."
+          echo "This workflow builds the frontend but does not apply Terraform."
+          ls frontend/dist

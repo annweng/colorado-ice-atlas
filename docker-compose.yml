@@ -1,0 +1,62 @@
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_DB: iceatlas
+      POSTGRES_USER: iceatlas
+      POSTGRES_PASSWORD: iceatlas
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./database/migrations/001_init.sql:/docker-entrypoint-initdb.d/001_init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U iceatlas -d iceatlas"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://iceatlas:iceatlas@db:5432/iceatlas
+      DATA_DIR: /app/frontend/public/data
+      CORS_ORIGINS: http://127.0.0.1:3847,http://localhost:3847,http://frontend:3847
+    ports:
+      - "8765:8765"
+    volumes:
+      - ./frontend/public/data:/app/frontend/public/data
+      - ./data/processed:/app/data/processed
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3847:3847"
+    depends_on:
+      - api
+
+  pipeline:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    working_dir: /app
+    command: python scripts/run_pipeline.py
+    environment:
+      DATABASE_URL: postgresql://iceatlas:iceatlas@db:5432/iceatlas
+    volumes:
+      - ./data:/app/data
+      - ./frontend/public/data:/app/frontend/public/data
+    profiles: ["pipeline"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:

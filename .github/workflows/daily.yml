@@ -1,0 +1,48 @@
+name: Daily ice pipeline
+
+on:
+  schedule:
+    - cron: "20 12 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: daily-ice-pipeline
+  cancel-in-progress: false
+
+jobs:
+  ingest-and-model:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install -r backend/requirements.txt
+      - name: Download inventory if missing
+        run: python scripts/download_inventory.py
+      - name: Run pipeline
+        env:
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/backend
+        run: python scripts/run_pipeline.py
+      - name: Verify snapshots
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          meta = json.loads(Path("frontend/public/data/meta.json").read_text())
+          assert meta.get("waterbodies", 0) > 1000
+          print(meta)
+          PY
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ice-atlas-snapshots
+          path: frontend/public/data
+          retention-days: 14
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "Daily pipeline failed. Previous snapshots must be retained; do not delete frontend/public/data."
+          echo "Check Actions logs for ingestion errors. Predictions are not overwritten on a failed export."
