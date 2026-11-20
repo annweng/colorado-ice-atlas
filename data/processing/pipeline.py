@@ -85,6 +85,48 @@ def _write_json(path: Path, payload: Any) -> None:
     path.write_text(json.dumps(jsonable(payload), allow_nan=False), encoding="utf-8")
 
 
+def _waterbody_id(row: Any) -> str:
+    comid = row.get("COMID")
+    if pd.notna(comid):
+        return f"nhd-{int(comid)}"
+    return f"oid-{int(row.get('OBJECTID'))}"
+
+
+def load_cached_dem_elevations(
+    lakes: pd.DataFrame, summaries_path: Path | None = None
+) -> tuple[list[float | None], dict[str, Any]]:
+    """Reuse last-run 3DEP heights instead of calling OpenTopoData."""
+    path = summaries_path or (FRONTEND_DATA / "summaries.json")
+    provenance: dict[str, Any] = {
+        "skipped": True,
+        "source": "Cached USGS 3DEP NED 10m from previous snapshot",
+        "cache_path": None,
+        "requested": int(len(lakes)),
+        "cache_hits": 0,
+        "missing": 0,
+    }
+    by_id: dict[str, float] = {}
+    if path.exists():
+        provenance["cache_path"] = str(path)
+        for item in json.loads(path.read_text(encoding="utf-8")):
+            value = item.get("elevation_m")
+            wid = item.get("id")
+            if value is None or not wid:
+                continue
+            by_id[str(wid)] = float(value)
+
+    elevations: list[float | None] = []
+    for _, row in lakes.iterrows():
+        value = by_id.get(_waterbody_id(row))
+        if value is None:
+            elevations.append(None)
+            provenance["missing"] += 1
+        else:
+            elevations.append(value)
+            provenance["cache_hits"] += 1
+    return elevations, provenance
+
+
 def build_inventory(skip_elevation: bool = False) -> dict[str, Any]:
     retrieved_at = datetime.now(timezone.utc).isoformat()
     lakes = load_waterbodies(RAW / "co_nhd_waterbodies.geojson")
@@ -95,8 +137,8 @@ def build_inventory(skip_elevation: bool = False) -> dict[str, Any]:
     lakes["duplicate_flag"] = detect_duplicates(lakes)
 
     if skip_elevation:
-        lakes["elevation_dem_m"] = pd.NA
-        elev_prov = {"skipped": True}
+        elevations, elev_prov = load_cached_dem_elevations(lakes)
+        lakes["elevation_dem_m"] = elevations
     else:
         elevations, elev_prov = sample_elevations(lakes["lat"].tolist(), lakes["lon"].tolist())
         lakes["elevation_dem_m"] = elevations

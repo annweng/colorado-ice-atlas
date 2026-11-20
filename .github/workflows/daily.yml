@@ -31,7 +31,9 @@ jobs:
       - name: Run pipeline
         env:
           PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/backend
-        run: python scripts/run_pipeline.py
+        # Lake centroids do not move. Reuse 3DEP heights from the last snapshot
+        # instead of resampling OpenTopoData on every daily run.
+        run: python scripts/run_pipeline.py --skip-elevation
       - name: Verify snapshots
         run: |
           python - <<'PY'
