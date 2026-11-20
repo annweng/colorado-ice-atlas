@@ -3,7 +3,7 @@ import type { CatalogItem, CompactWeather, Prediction, WaterbodySummary } from "
 const API = import.meta.env.VITE_API_URL ?? "";
 
 async function fetchJson<T>(path: string): Promise<T> {
-  const response = await fetch(`${API}${path}`);
+  const response = await fetch(`${API}${path}`, { cache: "no-store" });
   if (!response.ok) throw new Error(`${path} failed (${response.status})`);
   return response.json() as Promise<T>;
 }
