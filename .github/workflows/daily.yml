@@ -5,6 +5,9 @@ on:
     - cron: "20 12 * * *"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 concurrency:
   group: daily-ice-pipeline
   cancel-in-progress: false
@@ -15,6 +18,9 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -41,6 +47,18 @@ jobs:
           name: ice-atlas-snapshots
           path: frontend/public/data
           retention-days: 14
+      - name: Commit snapshots to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add frontend/public/data
+          if git diff --cached --quiet; then
+            echo "Snapshots unchanged; nothing to commit."
+            exit 0
+          fi
+          git commit -m "Update ice snapshots $(date -u +%F)"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
       - name: Notify on failure
         if: failure()
         run: |
