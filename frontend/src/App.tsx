@@ -1,10 +1,11 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { routerBasename } from "./lib/paths";
 import { About, DataPage, Methodology } from "./pages/About";
 import { Atlas } from "./pages/Atlas";
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={routerBasename()}>
       <Routes>
         <Route path="/" element={<Atlas />} />
         <Route path="/about" element={<About />} />

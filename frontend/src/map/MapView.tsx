@@ -12,6 +12,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
 setWorkerUrl(maplibreWorker);
 import { useEffect, useRef } from "react";
+import { assetUrl } from "../lib/paths";
 import type { Filters, IceState, WaterbodySummary } from "../lib/types";
 import { ICE_COLORS } from "../lib/types";
 import { BASEMAPS, COLORADO_BOUNDS, COLORADO_CENTER, type BasemapId } from "./basemaps";
@@ -199,7 +200,7 @@ function fitLake(map: MapLibreMap, focus: WaterbodySummary) {
 function addDataLayers(map: MapLibreMap) {
   if (map.getSource("waterbodies")) return;
   if (!map.getSource("outline")) {
-    map.addSource("outline", { type: "geojson", data: "/data/outline.geojson" });
+    map.addSource("outline", { type: "geojson", data: assetUrl("data/outline.geojson") });
     map.addLayer({
       id: "outline-line",
       type: "line",
@@ -207,7 +208,7 @@ function addDataLayers(map: MapLibreMap) {
       paint: { "line-color": "#9ec9e8", "line-width": 1.2, "line-opacity": 0.7 },
     });
   }
-  map.addSource("waterbodies", { type: "geojson", data: "/data/map.geojson", promoteId: "id" });
+  map.addSource("waterbodies", { type: "geojson", data: assetUrl("data/map.geojson"), promoteId: "id" });
   map.addLayer({
     id: "water-fill",
     type: "fill",

@@ -50,7 +50,7 @@ Operational inventory: Colorado OIT NHD Waterbodies (USGS NHDPlus), 7,132 polygo
 
 ## Costs
 
-v1 targets **$0/month** on GitHub Actions, Cloudflare Pages, optional R2, and optional Supabase free tier. GCP and AWS modules exist but are not applied. See `docs/cloud_costs.md`.
+Public map: [https://annweng.github.io/colorado-ice-atlas/](https://annweng.github.io/colorado-ice-atlas/). The daily ice pipeline commits snapshots to `main`, then GitHub Pages rebuilds. v1 targets **$0/month**. See `docs/cloud_costs.md` and `docs/deployment.md`.
 
 ## Repository layout
 

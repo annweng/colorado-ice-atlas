@@ -21,11 +21,15 @@ API docs: http://127.0.0.1:8765/docs
 
 ## Free-tier public hosting
 
-1. Run the pipeline so `frontend/public/data` is populated.
-2. Build the frontend (`npm run build`).
-3. Host `frontend/dist` on Cloudflare Pages (or any static host).
-4. Optionally create Supabase PostGIS, run `001_init.sql`, and `DATABASE_URL` for the API.
-5. Point GitHub Actions daily workflow at the same pipeline; commit or artifact the snapshots.
+GitHub Pages is the current production host.
+
+- Site: https://annweng.github.io/colorado-ice-atlas/
+- Source: GitHub Actions workflow `.github/workflows/deploy.yml`
+- Trigger: any push to `main` that touches `frontend/**`, including the daily ice snapshot commit
+
+The Vite build uses `base: /colorado-ice-atlas/` only when `GITHUB_PAGES=true`. Local and Cursor hosting still use `/`.
+
+Cloudflare Pages remains an optional later host. To switch, point Pages at `frontend` with build `npm run build` and output `dist`, without `GITHUB_PAGES`.
 
 Terraform apply is **manual**. The Cloudflare module is gated by `enable_cloudflare=false`.
 
