@@ -1,6 +1,6 @@
 # Data sources
 
-Evaluated 12 November 2026. Retrieval timestamps are stored in `frontend/public/data/provenance.json` after each pipeline run.
+Evaluated 12 November 2026. Retrieval timestamps are stored in `frontend/public/data/provenance.json` after each pipeline run. How these APIs sit in the stack is in `docs/stack.md`.
 
 ## Waterbody inventory
 

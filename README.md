@@ -40,13 +40,21 @@ PostGIS starts automatically. The map still works from snapshot files if the dat
 
 ## Stack
 
-React, TypeScript, Vite, MapLibre GL JS, Tailwind CSS, Recharts, Python, FastAPI, GeoPandas, PostGIS, Docker, Terraform, GitHub Actions.
+The public site is a static Vite app. A Python job rebuilds ice snapshots every morning. FastAPI and PostGIS are optional for local work; GitHub Pages does not run them.
 
-Basemaps: Esri World Street Map, Esri World Imagery (satellite), OpenTopoMap (terrain). Attribution is required and shown on the map.
+| | |
+| --- | --- |
+| Map | React 19, TypeScript, Vite, MapLibre GL JS, Tailwind CSS, Recharts |
+| Ice | Python 3.12, GeoPandas, NumPy — model `stefan_snow_v0.1` |
+| Optional API | FastAPI, PostGIS 16 |
+| Hosting | GitHub Pages + GitHub Actions (daily ingest, CI, deploy) |
+| Basemaps | Esri World Street Map, Esri World Imagery, OpenTopoMap |
+
+What each library and API is for: [`docs/stack.md`](docs/stack.md). Full doc index: [`docs/README.md`](docs/README.md).
 
 ## Data
 
-Operational inventory: Colorado OIT NHD Waterbodies (USGS NHDPlus), 7,132 polygons. Elevation: USGS 3DEP. Weather: Open-Meteo 0.25° grid. Satellite: Sentinel-2 L2A STAC metadata, not pixel ice. Details in `docs/data_sources.md` and `docs/methodology.md`.
+Operational inventory: Colorado OIT NHD Waterbodies (USGS NHDPlus), 7,132 polygons. Elevation: USGS 3DEP via OpenTopoData (cached on daily runs). Weather: Open-Meteo 0.25° grid. Satellite: Sentinel-2 L2A scene metadata from Microsoft Planetary Computer STAC, not pixel ice. Details in `docs/data_sources.md` and `docs/methodology.md`.
 
 ## Costs
 

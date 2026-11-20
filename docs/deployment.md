@@ -19,6 +19,8 @@ docker compose up --build
 Frontend: http://127.0.0.1:3847  
 API docs: http://127.0.0.1:8765/docs
 
+What the app is built from: `docs/stack.md`.
+
 ## Free-tier public hosting
 
 GitHub Pages is the current production host.
